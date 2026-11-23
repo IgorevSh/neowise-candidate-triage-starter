@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="ru" data-theme="neowise">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Входящие заявки — Neowise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5/daisyui.css" rel="stylesheet" type="text/css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: "Manrope", "Segoe UI", system-ui, sans-serif;
+    }
+  </style>
+  <style>
+    :root,
+    [data-theme="neowise"] {
+      color-scheme: dark;
+      --nw-bg-0: #07090f;
+      --nw-bg-glow-a: rgba(56, 98, 180, 0.22);
+      --nw-bg-glow-b: rgba(88, 70, 160, 0.12);
+      --nw-surface: #12161f;
+      --nw-surface-2: #1a2030;
+      --nw-surface-3: #222a3a;
+      --nw-border: rgba(255, 255, 255, 0.08);
+      --nw-border-strong: rgba(255, 255, 255, 0.14);
+      --nw-accent: #4f7cff;
+      --nw-accent-2: #6b8cff;
+      --nw-accent-soft: rgba(79, 124, 255, 0.16);
+      --nw-ok: #3ecf8e;
+      --nw-warn: #f0b429;
+      --nw-danger: #f07178;
+      --nw-text: #eef2ff;
+      --nw-text-muted: #9aa3b8;
+      --nw-text-faint: #6b7389;
+      --nw-space-2: 0.5rem;
+      --nw-space-3: 0.75rem;
+      --nw-space-4: 1rem;
+      --nw-space-5: 1.25rem;
+      --nw-space-6: 1.5rem;
+      --nw-radius-lg: 1.25rem;
+      --nw-radius-pill: 9999px;
+      --color-base-100: var(--nw-surface);
+      --color-base-200: var(--nw-surface-2);
+      --color-base-300: var(--nw-surface-3);
+      --color-base-content: var(--nw-text);
+      --color-primary: var(--nw-accent);
+      --color-primary-content: #0b1020;
+      --color-success: var(--nw-ok);
+      --color-warning: var(--nw-warn);
+      --color-error: var(--nw-danger);
+      --radius-box: var(--nw-radius-lg);
+      --radius-field: var(--nw-radius-pill);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+      color: var(--nw-text);
+      background: var(--nw-bg-0);
+    }
+
+    ::selection {
+      background: var(--nw-accent-soft);
+      color: var(--nw-text);
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--nw-accent);
+      outline-offset: 2px;
+    }
+
+    .ambient {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 55% at 18% 12%, var(--nw-bg-glow-a), transparent 60%),
+        radial-gradient(ellipse 55% 50% at 82% 78%, var(--nw-bg-glow-b), transparent 55%),
+        radial-gradient(ellipse 90% 70% at 50% 40%, rgba(20, 28, 48, 0.9), var(--nw-bg-0));
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .content-col {
+      width: min(46rem, 100%);
+      margin-inline: auto;
+      padding-inline: clamp(1rem, 3vw, 1.5rem);
+    }
+
+    .topbar {
+      padding: var(--nw-space-5) 0 var(--nw-space-3);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .topbar p {
+      margin: 0.25rem 0 0;
+      font-size: 0.8125rem;
+      color: var(--nw-text-muted);
+    }
+
+    .feed {
+      min-height: 0;
+      height: 100%;
+      width: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: var(--nw-space-3) 0 var(--nw-space-4);
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+    }
+
+    .feed::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .feed::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .feed::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    .feed::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .feed::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+    }
+
+    .feed::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .feed-inner {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: var(--nw-space-3);
+      min-height: 100%;
+      width: min(46rem, 100%);
+      margin-inline: auto;
+      padding-inline: clamp(1rem, 3vw, 1.5rem);
+      box-sizing: border-box;
+    }
+
+    .msg {
+      max-width: min(100%, 36rem);
+      padding: 0.9rem 1.1rem;
+      border-radius: 1.15rem;
+      border: 1px solid var(--nw-border);
+      background: color-mix(in srgb, var(--nw-surface-2) 94%, transparent);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+      animation: rise 180ms ease-out;
+      width: fit-content;
+    }
+
+    .msg--user {
+      align-self: flex-end;
+      background: color-mix(in srgb, var(--nw-accent) 14%, var(--nw-surface-2));
+      border-color: color-mix(in srgb, var(--nw-accent) 28%, var(--nw-border));
+      border-bottom-right-radius: 0.45rem;
+    }
+
+    .msg--assistant {
+      align-self: flex-start;
+      border-bottom-left-radius: 0.45rem;
+    }
+
+    .msg--manual {
+      background: color-mix(in srgb, var(--nw-warn) 8%, var(--nw-surface-2));
+      border-color: color-mix(in srgb, var(--nw-warn) 35%, var(--nw-border));
+    }
+
+    .msg--error {
+      background: color-mix(in srgb, var(--nw-danger) 8%, var(--nw-surface-2));
+      border-color: color-mix(in srgb, var(--nw-danger) 35%, var(--nw-border));
+    }
+
+    .msg--loading {
+      color: var(--nw-text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-size: 0.875rem;
+      min-width: 11rem;
+      background: color-mix(in srgb, var(--nw-accent) 8%, var(--nw-surface-2));
+      border-color: color-mix(in srgb, var(--nw-accent) 22%, var(--nw-border));
+      animation: rise 180ms ease-out, loading-glow 1.4s ease-in-out infinite;
+    }
+
+    .loading-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .loading-copy strong {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--nw-text);
+    }
+
+    .loading-copy span {
+      font-size: 0.75rem;
+      color: var(--nw-text-faint);
+    }
+
+    .typing {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.28rem;
+      padding: 0.15rem 0;
+    }
+
+    .typing i {
+      width: 0.42rem;
+      height: 0.42rem;
+      border-radius: 50%;
+      background: var(--nw-accent-2);
+      opacity: 0.35;
+      animation: typing-dot 1.05s ease-in-out infinite;
+    }
+
+    .typing i:nth-child(2) { animation-delay: 0.15s; }
+    .typing i:nth-child(3) { animation-delay: 0.3s; }
+
+    .msg-text {
+      margin: 0;
+      white-space: pre-wrap;
+      font-size: 0.975rem;
+      line-height: 1.55;
+      max-width: 56ch;
+    }
+
+    .msg-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--nw-space-2);
+      margin-bottom: var(--nw-space-3);
+    }
+
+    .msg-meta-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--nw-text-muted);
+    }
+
+    .draft-label {
+      margin: 0 0 var(--nw-space-2);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--nw-text-muted);
+    }
+
+    .msg-row {
+      display: flex;
+      gap: var(--nw-space-3);
+      align-items: flex-start;
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .msg-row svg {
+      width: 1.15rem;
+      height: 1.15rem;
+      flex-shrink: 0;
+      margin-top: 0.15rem;
+    }
+
+    .msg--manual .msg-row svg { color: var(--nw-warn); }
+    .msg--error .msg-row svg { color: var(--nw-danger); }
+
+    .composer-wrap {
+      padding-block: 0 calc(var(--nw-space-5) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .composer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 0.35rem;
+      padding: 0.45rem 0.45rem 0.45rem 1rem;
+      border-radius: var(--nw-radius-pill);
+      border: 1px solid var(--nw-border);
+      background: color-mix(in srgb, var(--nw-surface-2) 92%, transparent);
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(10px);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .composer:focus-within {
+      border-color: color-mix(in srgb, var(--nw-accent) 50%, var(--nw-border-strong));
+      box-shadow: 0 0 0 3px var(--nw-accent-soft), 0 10px 36px rgba(0, 0, 0, 0.35);
+    }
+
+    .composer-input {
+      width: 100%;
+      min-height: 2.5rem;
+      max-height: 9rem;
+      margin: 0;
+      padding: 0.55rem 0.25rem;
+      border: 0;
+      resize: none;
+      background: transparent;
+      color: var(--nw-text);
+      font: inherit;
+      font-size: 0.975rem;
+      line-height: 1.45;
+      field-sizing: content;
+    }
+
+    .composer-input::placeholder { color: var(--nw-text-faint); }
+    .composer-input:focus { outline: none; }
+
+    .composer-send {
+      width: 2.5rem;
+      height: 2.5rem;
+      min-height: 2.5rem;
+      padding: 0;
+      border-radius: var(--nw-radius-pill);
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .composer-send svg {
+      width: 1.15rem;
+      height: 1.15rem;
+    }
+
+    .composer-hint {
+      margin: var(--nw-space-2) 0 0;
+      font-size: 0.75rem;
+      color: var(--nw-text-faint);
+      text-align: center;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes typing-dot {
+      0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-3px); }
+    }
+
+    @keyframes loading-glow {
+      0%, 100% { box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28); }
+      50% { box-shadow: 0 8px 28px rgba(79, 124, 255, 0.18); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .msg, .msg--loading { animation: none; }
+      .typing i { animation: none; opacity: 0.7; }
+      .feed { scroll-behavior: auto; }
+      .composer { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <div class="app">
+    <header class="topbar content-col">
+      <h1>Neowise</h1>
+      <p>Входящие заявки — тема и черновик ответа</p>
+    </header>
+
+    <div id="feed" class="feed" aria-live="polite">
+      <div id="feed-inner" class="feed-inner"></div>
+    </div>
+
+    <div class="composer-wrap content-col">
+      <form id="triage-form" class="composer" aria-label="Текст заявки">
+        <label class="sr-only" for="message" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Текст заявки</label>
+        <textarea
+          id="message"
+          class="composer-input"
+          rows="1"
+          required
+          placeholder="Текст заявки…"
+          enterkeyhint="send"
+        ></textarea>
+        <button type="submit" class="btn btn-primary composer-send" id="submit-btn" aria-label="Разобрать заявку" title="Отправить (Enter)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3 21l18-9L3 3l3 9zm0 0h7.5" />
+          </svg>
+        </button>
+      </form>
+      <p class="composer-hint">Enter — отправить · Shift+Enter — новая строка</p>
+    </div>
+  </div>
+
+  <script type="module">
+    const TOPIC_LABELS = {
+      delivery: "Доставка",
+      pricing: "Цены",
+      other: "Другое",
+    };
+
+    const form = document.querySelector("#triage-form");
+    const message = document.querySelector("#message");
+    const button = document.querySelector("#submit-btn");
+    const feed = document.querySelector("#feed");
+    const feedInner = document.querySelector("#feed-inner");
+    const LOADING_MIN_MS = 650;
+
+    const icons = {
+      alert: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>`,
+      warn: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>`,
+    };
+
+    function el(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text != null) node.textContent = text;
+      return node;
+    }
+
+    function icon(svg) {
+      const wrap = document.createElement("span");
+      wrap.innerHTML = svg;
+      return wrap.firstElementChild;
+    }
+
+    function clearPreviousDraft() {
+      const drafts = feedInner.querySelectorAll("[data-kind='draft']");
+      drafts[drafts.length - 1]?.remove();
+    }
+
+    function scrollFeed() {
+      requestAnimationFrame(() => {
+        feed.scrollTop = feed.scrollHeight;
+      });
+    }
+
+    function appendMessage(node) {
+      feedInner.append(node);
+      scrollFeed();
+      return node;
+    }
+
+    function userBubble(text) {
+      const bubble = el("div", "msg msg--user");
+      bubble.dataset.role = "user";
+      bubble.append(el("p", "msg-text", text));
+      return appendMessage(bubble);
+    }
+
+    function loadingBubble() {
+      const bubble = el("div", "msg msg--assistant msg--loading");
+      bubble.dataset.role = "assistant";
+      bubble.dataset.loading = "true";
+      bubble.innerHTML = `
+        <span class="typing" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="loading-copy">
+          <strong>Разбираем заявку</strong>
+          <span>Модель готовит тему и черновик…</span>
+        </span>
+      `;
+      return appendMessage(bubble);
+    }
+
+    function replaceAssistant(bubble, classNames, build, kind) {
+      bubble.className = `msg msg--assistant ${classNames}`.trim();
+      delete bubble.dataset.loading;
+      if (kind) bubble.dataset.kind = kind;
+      else delete bubble.dataset.kind;
+      bubble.replaceChildren();
+      build(bubble);
+      scrollFeed();
+    }
+
+    async function waitAtLeast(startedAt, minMs) {
+      const left = minMs - (Date.now() - startedAt);
+      if (left > 0) await new Promise((resolve) => setTimeout(resolve, left));
+    }
+
+    function resizeInput() {
+      message.style.height = "auto";
+      message.style.height = `${Math.min(message.scrollHeight, 144)}px`;
+    }
+
+    message.addEventListener("input", resizeInput);
+
+    message.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      if (event.shiftKey) return;
+      event.preventDefault();
+      if (!button.disabled) form.requestSubmit();
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const text = message.value;
+      if (!text.trim()) {
+        const bubble = el("div", "msg msg--assistant msg--error");
+        bubble.dataset.role = "assistant";
+        const row = el("p", "msg-row");
+        row.append(icon(icons.alert), document.createTextNode("Введите текст заявки."));
+        bubble.append(row);
+        appendMessage(bubble);
+        return;
+      }
+
+      const isProbe =
+        /\[(timeout|error|bad-json|bad-topic|empty-draft)\]/i.test(text);
+      if (!isProbe) userBubble(text.trim());
+      message.value = "";
+      resizeInput();
+
+      const pending = loadingBubble();
+      button.disabled = true;
+      const startedAt = Date.now();
+
+      try {
+        const reply = await fetch("/api/triage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        const data = await reply.json();
+        await waitAtLeast(startedAt, LOADING_MIN_MS);
+
+        if (data.status === "ready") {
+          const topic = TOPIC_LABELS[data.topic] ?? data.topic;
+          replaceAssistant(pending, "", (bubble) => {
+            const meta = el("div", "msg-meta");
+            meta.append(el("span", "msg-meta-label", "Тема"));
+            meta.append(el("span", "badge badge-primary badge-soft", topic));
+            bubble.append(meta);
+            bubble.append(el("p", "draft-label", "Черновик ответа"));
+            bubble.append(el("p", "msg-text", data.draft));
+          }, "draft");
+          return;
+        }
+
+        if (data.status === "manual_review") {
+          clearPreviousDraft();
+          replaceAssistant(pending, "msg--manual", (bubble) => {
+            const row = el("p", "msg-row");
+            row.append(
+              icon(icons.warn),
+              document.createTextNode(
+                "Авторазбор недоступен. Разберите заявку вручную.",
+              ),
+            );
+            bubble.append(row);
+          });
+          return;
+        }
+
+        if (data.status === "invalid_input") {
+          replaceAssistant(pending, "msg--error", (bubble) => {
+            const row = el("p", "msg-row");
+            row.append(icon(icons.alert), document.createTextNode("Введите непустой текст заявки."));
+            bubble.append(row);
+          });
+          return;
+        }
+
+        replaceAssistant(pending, "msg--error", (bubble) => {
+          const row = el("p", "msg-row");
+          row.append(icon(icons.alert), document.createTextNode("Не удалось разобрать заявку. Попробуйте ещё раз."));
+          bubble.append(row);
+        });
+      } catch {
+        replaceAssistant(pending, "msg--error", (bubble) => {
+          const row = el("p", "msg-row");
+          row.append(icon(icons.alert), document.createTextNode("Сеть недоступна. Разберите заявку вручную."));
+          bubble.append(row);
+        });
+      } finally {
+        button.disabled = false;
+        message.focus();
+      }
+    });
+
+    resizeInput();
+    message.focus();
+  </script>
+</body>
+</html>
